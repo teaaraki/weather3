@@ -6,62 +6,55 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//displays index.html of root path
+// Displays index.html at root path
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
 
-//coding for form submission
+// Handles form submission
 app.post("/", function (req, res) {
-  var city = String(req.body.cityInput);
-  console.log(req.body.cityInput);
+  console.log("Form data received:", req.body);
+  var latitude = req.body.latInput;
+  var longitude = req.body.lonInput;
+  console.log("Latitude:", latitude, "Longitude:", longitude);
+
+  //if one is missing
+  if (!latitude || !longitude) {
+    return res.send("<h1>Error: Latitude or Longitude is missing</h1>");
+  }
 
   const units = "imperial";
+  const apiKey = process.env.API_KEY || "f6f0e5116995571d5e13dec27a00bf92";
 
-  //AI used to help generate code so the API key is private
-  const apiKey = process.env.API_KEY || "95d99161b648050e7c09e73645f7314d";
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${units}&appid=${apiKey}`;
 
-  const url =
-    "https://api.openweathermap.org/data/2.5/weather?q=" +
-    city +
-    "&units=" +
-    units +
-    "&APPID=" +
-    apiKey;
-
-  // gets from open WeatherAPI data
+  // get data from OpenWeather API
   https.get(url, function (response) {
     console.log(response.statusCode);
 
-    // gets individual items from Open Weather API
-    response.on("data", function (data) {
-      const weatherData = JSON.parse(data);
-      const temp = weatherData.main.temp;
-      const humidity = weatherData.main.humidity;
-      const windSpeed = weatherData.wind.speed;
-      const city = weatherData.name;
-      const latitude = weatherData.coord.lat;
-      const longitude = weatherData.coord.lon;
-      const weatherDescription = weatherData.weather[0].description;
-      const icon = weatherData.weather[0].icon;
-      const imageURL = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
+    const temp = weatherData.main.temp;
+    const humidity = weatherData.main.humidity;
+    const windSpeed = weatherData.wind.speed;
+    const city = weatherData.name;
+    const weatherDescription = weatherData.weather[0].description;
+    const cloudiness = weatherData.clouds.all;
+    const icon = weatherData.weather[0].icon;
+    const imageURL = `http://openweathermap.org/img/wn/${icon}@2x.png`;
 
-      // displays the output of the results from open weather API
-      res.write("<h1> The weather in " + city + "</h1>");
-      //minor error with quote brackets for weather description, fixed with AI
-      res.write("<h2>" + weatherDescription + "</h2>");
-      res.write("<p>Temperature: " + temp + " F</p>");
-      res.write("<p>Wind Speed: " + windSpeed + " mph</p>");
-      res.write("Humidity: " + humidity + "%</p>");
-      res.write("<p>Latitude: " + latitude + "</p>");
-      res.write("<p>Longitude: " + longitude + "</p>");
-      res.write("<img src=" + imageURL + ">");
-      res.send();
-    });
+    // Display output in a single response, original coding wasnt working, AI used to fix output
+    res.send(`
+          <h1>The weather in ${city}</h1>
+          <h2>${weatherDescription}</h2>
+          <p>Temperature: ${temp} °F</p>
+          <p>Wind Speed: ${windSpeed} mph</p>
+          <p>Humidity: ${humidity}%</p>
+          <p>Cloudiness: ${cloudiness}%</p>
+          <img src="${imageURL}" alt="Weather Icon">
+        `);
   });
 });
 
-//Code will run on 3000 or any available open port
+// Run server on port 3000 or available port
 app.listen(process.env.PORT || 3000, function () {
-  console.log("Server is running on port");
+  console.log("Server is running on port 3000");
 });
