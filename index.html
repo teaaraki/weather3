@@ -8,8 +8,33 @@
     <h1>Weather API Results</h1>
 
     <form action="/" method="post">
-      <label for="cityInput">City: </label>
-      <input id="cityInput" type="text" name="cityInput" />
+      <label for="cityInput">City Name:</label>
+      <input
+        id="cityInput"
+        type="text"
+        name="cityInput"
+        placeholder="e.g. Honolulu"
+      />
+
+      <p>OR</p>
+
+      <label for="latInput">Latitude:</label>
+      <input
+        id="latInput"
+        type="text"
+        name="latInput"
+        placeholder="e.g. 20.7"
+      />
+
+      <label for="lonInput">Longitude:</label>
+      <input
+        id="lonInput"
+        type="text"
+        name="lonInput"
+        placeholder="e.g. -156.3"
+      />
+
+      <br /><br />
       <button type="submit">Go</button>
     </form>
   </body>
